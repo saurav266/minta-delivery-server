@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DeliveryPartner {
+  id        String   @id @default(uuid())
+  mobile    String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts DeliveryPartnerAccount[]
+}
+
+model DeliveryPartnerAccount {
+  id                String   @id @default(uuid())
+  deliveryPartnerId String
+  service           String
+  sourcePartnerId   String
+  createdAt         DateTime @default(now())
+
+ deliveryPartner DeliveryPartner @relation(fields: [deliveryPartnerId], references: [id], onDelete: Cascade)
+
+  @@unique([service, sourcePartnerId])
+  @@unique([deliveryPartnerId, service])
+  @@index([deliveryPartnerId])
+}
